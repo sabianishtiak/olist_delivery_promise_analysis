@@ -16,11 +16,11 @@ The two questions are connected since the first one establishes what is actually
 ![Page 1 - Delivery Promise Reliability](page1_delivery_promise_reliability.png)
 
 **Whether delivery promises are calibrated**
-4. A closer look at delivery promise and actual delivery shows that promise window increases for slower regions, but does not consistently account for delivery variability.
-5. State PA has the widest delivery spread in the country at 18 days and receives the largest promise premium of 16 days, still falling short of the expectation. In contrast, AL has a similar 17 day spread but receives only 10 days of delivery premium, resulting in the highest late rate nationally at 21.4%.
-6. Eight of the states need a longer promise to reach a 90% on-time rate.
-7. 91.9% of the orders arrive before the promised date, and only 1.3% arrive exactly on it, suggesting the fact that the promise functions as a ceiling rather than a target.
-8. Several states promise more days than required. Their quoted window could be shortened without increasing the risk of late deliveries.
+1. A closer look at delivery promise and actual delivery shows that promise window increases for slower regions, but does not consistently account for delivery variability.
+2. State PA has the widest delivery spread in the country at 18 days and receives the largest promise premium of 16 days, still falling short of the expectation. In contrast, AL has a similar 17 day spread but receives only 10 days of delivery premium, resulting in the highest late rate nationally at 21.4%.
+3. Eight of the states need a longer promise to reach a 90% on-time rate.
+4. 91.9% of the orders arrive before the promised date, and only 1.3% arrive exactly on it, suggesting the fact that the promise functions as a ceiling rather than a target.
+5. Several states promise more days than required. Their quoted window could be shortened without increasing the risk of late deliveries.
 
 ![Page 2 - Regional Promise Calibration](page2_regional_promise_calibration.png)
 
