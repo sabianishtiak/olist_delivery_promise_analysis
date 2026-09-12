@@ -1,0 +1,42 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-DE
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup dimensions
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup Loookups
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup Facts
+
+	annotation PBI_QueryGroupOrder = 2
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["olist_order_items_dataset","olist_order_payments_dataset","olist_order_reviews_dataset","olist_orders_dataset","olist_products_dataset","olist_sellers_dataset","product_category_name_translation","olist_customers_dataset","olist_geolocation_dataset","olist_geolocation_dataset (2)","fact_orders","fact_order_items","fact_payments","fact_reviews","dim_customer","dim_product","dim_seller","lkp_cus_location","lkp_geo","lkp_zip_canonical","lkp_seller_location","lkp_order_reviews","lkp_order_seller","lkp_single_seller","dim_date","dim_location","_measure"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table dim_seller
+ref table dim_customer
+ref table dim_product
+ref table fact_orders
+ref table dim_date
+ref table _measure
+ref table dim_location
+ref table fact_order_items
+ref table DateTableTemplate_f2512420-a577-4cc6-9f15-c703ed5164d1
+ref table LocalDateTable_3c33d75c-8009-4075-99ef-f0b62e57961c
+ref table fact_payments
+ref table fact_reviews
+
+ref cultureInfo en-US
+

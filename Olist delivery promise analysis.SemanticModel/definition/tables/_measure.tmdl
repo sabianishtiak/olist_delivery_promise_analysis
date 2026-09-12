@@ -1,0 +1,149 @@
+table _measure
+	lineageTag: 32787dc7-5732-47c4-9472-d51f248e4e17
+
+	measure Orders = DISTINCTCOUNT(fact_orders[order_id])
+		formatString: 0
+		lineageTag: 9ca5a35c-173c-429f-bc1b-c9370841410b
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Average Review Score' = AVERAGE(fact_orders[avg_review_score])
+		lineageTag: e87de68a-a0c8-459b-98ea-de0ffca79296
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Late Orders' = CALCULATE([Orders],fact_orders[promise_status] = "Late")
+		formatString: 0
+		lineageTag: 116b54a0-677a-4ffc-aef3-4824209a46a0
+
+	measure 'Late Order %' = DIVIDE([Late Orders],CALCULATE([Orders], NOT ISBLANK(fact_orders[delivery_days])))
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: 7c2e3e0a-187d-4364-926d-84e80306281f
+
+	measure 'Median Promised' =
+			
+			MEDIAN(fact_orders[promised_window_days])
+		formatString: 0
+		lineageTag: be3b3583-a0a0-4108-905c-da55c4030129
+
+	measure 'Median Actual' = MEDIAN(fact_orders[delivery_days])
+		lineageTag: 2b1d4a3a-6a85-41a0-a895-0e98cea96772
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Recommended Promise' = CEILING(PERCENTILE.INC(fact_orders[delivery_days], 0.90),1)
+		formatString: 0
+		lineageTag: 8c91b790-9f45-4e30-b75f-8f9959e11959
+
+	measure 'Buffer v Slow Orders' = [Median Promised] - [Recommended Promise]
+		lineageTag: 9c8e68a2-f65a-496e-9c3a-f07a8692b59a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Review Score (Min 100 Orders)' = IF([Orders]>=100, [Average Review Score], BLANK())
+		lineageTag: 2eb346c6-cb55-44fa-890b-b833275c0105
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Delivered Orders' =
+			
+			CALCULATE(
+			    DISTINCTCOUNT(fact_orders[order_id]),
+			    fact_orders[order_status] = "delivered"
+			)
+		formatString: 0
+		lineageTag: 0fa37391-681e-468c-8761-e759294d9f8e
+
+	measure 'Promise Premium' = [Median Promised] - [Median Actual]
+		lineageTag: 33fa1e2a-f9c3-4c12-9a93-7bda5365a207
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Delivery Spread' = [Recommended Promise] - [Median Actual]
+		lineageTag: 96ce3699-b912-4b75-a626-79ff563ce0de
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Delivery Days vs Promise Delivery' = AVERAGE(fact_orders[promise_slack_days])
+		formatString: 0.0
+		lineageTag: f963abf0-81ae-438c-aaea-8f4a0f4d0ffc
+
+	measure 'Days to Adjust' = [Recommended Promise] - [Median Promised]
+		formatString: 0
+		lineageTag: 5b0bdc0a-e9d2-481d-8109-bebb69c6d319
+
+	measure 'Multi Seller Orders' =
+			
+			COUNTROWS(
+			    FILTER(
+			        VALUES ( fact_order_items[order_id] ),
+			        CALCULATE ( DISTINCTCOUNT ( fact_order_items[seller_key] ) ) > 1
+			    )
+			)
+		formatString: 0
+		isHidden
+		lineageTag: 69d79a58-4605-480b-909e-39d3d386b1ec
+
+		changedProperty = IsHidden
+
+	measure order_count = COUNTROWS(fact_orders)
+		formatString: 0
+		isHidden
+		lineageTag: 8dfee78d-eda4-4d52-adcd-dcf27fad6b4a
+
+		changedProperty = IsHidden
+
+	measure order_distinct = DISTINCTCOUNT(fact_order_items[order_id])
+		formatString: 0
+		isHidden
+		lineageTag: bd758c1a-2f7a-465d-b359-3d4cfb789778
+
+		changedProperty = IsHidden
+
+	measure 'Orders With No Date Match' =
+			
+			COUNTROWS ( FILTER ( fact_orders, ISBLANK ( RELATED ( dim_date[date] ) ) ) )
+		formatString: 0
+		isHidden
+		lineageTag: 04edc872-15e2-4a7b-8eb0-76fd72924a40
+
+		changedProperty = IsHidden
+
+	measure 'Repeat Customers' =
+			
+			COUNTROWS(
+			    FILTER(
+			        VALUES ( dim_customer[customer_key] ),
+			        CALCULATE ( COUNTROWS ( fact_orders ) ) > 1
+			    )
+			)
+		formatString: 0
+		isHidden
+		lineageTag: 1f83b1e1-e4eb-443a-b5a6-7d38985bacf5
+
+		changedProperty = IsHidden
+
+	measure 1 = COUNTROWS(fact_reviews)
+		formatString: 0
+		lineageTag: 8e2c9c95-e202-41d6-8fe7-640ee0439677
+
+	measure 2 = DISTINCTCOUNT(fact_reviews[order_id])
+		formatString: 0
+		lineageTag: 853d6acc-fc69-4ca2-8817-6eb6d7c2cc97
+
+	measure 3 = DISTINCTCOUNT(fact_reviews[review_id])
+		formatString: 0
+		lineageTag: 6d26d97d-87f8-45b1-85d0-f7a4ac7d8f89
+
+	partition _measure = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [_measure = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"_measure", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"_measure"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

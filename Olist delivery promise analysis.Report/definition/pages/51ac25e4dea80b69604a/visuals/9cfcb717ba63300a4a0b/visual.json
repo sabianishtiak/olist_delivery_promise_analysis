@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "9cfcb717ba63300a4a0b",
+  "position": {
+    "x": 10.127877237851663,
+    "y": 0,
+    "z": 0,
+    "height": 118.77237851662404,
+    "width": 943.73401534526863,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Regional Delivery Performance",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "40pt",
+                      "color": "#094780"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Delivery promise windows track how slow a region is, but not how unpredictable it is.",
+                    "textStyle": {
+                      "fontSize": "18pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

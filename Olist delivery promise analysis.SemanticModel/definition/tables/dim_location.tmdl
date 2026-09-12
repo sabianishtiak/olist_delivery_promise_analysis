@@ -1,0 +1,83 @@
+table dim_location
+	lineageTag: 17b38b66-ceb9-4f94-a02b-663744f526cb
+
+	column zip_code
+		dataType: string
+		lineageTag: 07962c56-282d-4bb9-b4b0-b2b3d5b777b4
+		summarizeBy: none
+		sourceColumn: zip_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column city
+		dataType: string
+		lineageTag: 64bf60c9-db95-470e-af71-145e2076cc2c
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
+
+	column state
+		dataType: string
+		lineageTag: 41966eee-1d85-46cb-9623-d6e28ed56322
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	column latitude
+		dataType: double
+		lineageTag: b11de81b-a078-41f5-8e7e-3ebdb161bce9
+		summarizeBy: sum
+		sourceColumn: latitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column longitude
+		dataType: double
+		lineageTag: 141fe33f-2244-4e95-8420-4ebee357fd0d
+		summarizeBy: sum
+		sourceColumn: longitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column location_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 4530645a-02a2-4d32-9dd0-96569ae69549
+		summarizeBy: none
+		sourceColumn: location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_location = m
+		mode: import
+		queryGroup: dimensions
+		source =
+				let
+				    Source = olist_customers_dataset,
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"customer_id", "customer_unique_id"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"customer_zip_code_prefix", "zip_code"}, {"customer_city", "city"}, {"customer_state", "state"}}),
+				    #"Appended Query" = Table.Combine({#"Renamed Columns", lkp_seller_location}),
+				    #"Grouped Rows" = Table.Group(#"Appended Query", {"zip_code", "city", "state"}, {{"Count", each Table.RowCount(_), Int64.Type}}),
+				    #"Sorted Rows" = Table.Sort(#"Grouped Rows",{{"zip_code", Order.Ascending}, {"Count", Order.Descending}}),
+				    #"Removed Duplicates" = Table.Distinct(#"Sorted Rows", {"zip_code"}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Removed Duplicates",{"Count"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Columns1",{{"zip_code", type text}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"zip_code"}, lkp_geo, {"geolocation_zip_code_prefix"}, "lkp_geo", JoinKind.LeftOuter),
+				    #"Expanded lkp_geo" = Table.ExpandTableColumn(#"Merged Queries", "lkp_geo", {"latitude", "longitude"}, {"lkp_geo.latitude", "lkp_geo.longitude"}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Expanded lkp_geo",{{"lkp_geo.latitude", "latitude"}, {"lkp_geo.longitude", "longitude"}}),
+				    #"Added Index" = Table.AddIndexColumn(#"Renamed Columns1", "Index", 1, 1, Int64.Type),
+				    #"Renamed Columns2" = Table.RenameColumns(#"Added Index",{{"Index", "location_key"}}),
+				    #"Removed Duplicates1" = Table.Distinct(#"Renamed Columns2", {"zip_code"})
+				in
+				    #"Removed Duplicates1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

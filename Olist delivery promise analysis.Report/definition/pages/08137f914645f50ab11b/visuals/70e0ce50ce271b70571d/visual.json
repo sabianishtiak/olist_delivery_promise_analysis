@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "70e0ce50ce271b70571d",
+  "position": {
+    "x": 10.272873194221509,
+    "y": 0,
+    "z": 1000,
+    "height": 117.11075441412521,
+    "width": 926.61316211878011,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Olist Delivery Promise Analysis",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "40pt",
+                      "color": "#094780"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Customer satisfaction is driven by promise reliability than by delivery speed alone",
+                    "textStyle": {
+                      "fontSize": "18pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

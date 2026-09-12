@@ -1,0 +1,280 @@
+table fact_orders
+	lineageTag: d9eb300c-3bb4-4eb3-a75e-5d9c0f93e8b3
+
+	column order_id
+		dataType: string
+		lineageTag: 3da584c5-96ca-4740-8ea7-aa37179e1d2e
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_status
+		dataType: string
+		lineageTag: 63e5c59e-767a-4c10-872f-77c980d2e4c1
+		summarizeBy: none
+		sourceColumn: order_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column purchase_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 0a8d3309-6ec8-49c0-be92-e6819343f80f
+		summarizeBy: none
+		sourceColumn: purchase_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column approval_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 3ebc9a21-ed9e-4ce4-96d9-1f423f7e981b
+		summarizeBy: none
+		sourceColumn: approval_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column carrier_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 063b4c9c-d3b8-49c0-bfcc-6ce6a33c0d7a
+		summarizeBy: none
+		sourceColumn: carrier_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column delivery_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f3f18c97-bcd7-4555-bb2a-876d565d0a4b
+		summarizeBy: none
+		sourceColumn: delivery_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column estimated_delivery_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 87dd9e1f-b97d-4e36-8eb3-98abd34841a9
+		summarizeBy: none
+		sourceColumn: estimated_delivery_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column customer_key
+		dataType: int64
+		formatString: 0
+		lineageTag: e7bbcc61-7183-4d0b-b89c-04a5447868cd
+		summarizeBy: none
+		sourceColumn: customer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_location_key
+		dataType: int64
+		formatString: 0
+		lineageTag: ab7d1f8c-bc09-4c88-b0e6-2ca3d6aa56e5
+		summarizeBy: none
+		sourceColumn: customer_location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_days
+		dataType: int64
+		formatString: 0
+		lineageTag: b6f6c4ea-ddbc-49b1-b5c2-7812d39afcb5
+		summarizeBy: sum
+		sourceColumn: delivery_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column promised_window_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 23c9cef6-06b4-47de-854c-e47be069553f
+		summarizeBy: sum
+		sourceColumn: promised_window_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"fact_orders","TableItemName":"promised_window_days (bins)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column delivery_is_late
+		dataType: string
+		lineageTag: 10b62e35-75a9-45cb-b6ae-e6d1d6d16823
+		summarizeBy: none
+		sourceColumn: delivery_is_late
+
+		annotation SummarizationSetBy = Automatic
+
+	column promise_slack_days
+		dataType: int64
+		formatString: 0
+		lineageTag: e5baf18b-a1a7-43d9-bfcb-9ac3b5e475f2
+		summarizeBy: sum
+		sourceColumn: promise_slack_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column avg_review_score
+		dataType: double
+		lineageTag: dc165341-1b75-4a89-a011-a28744bcb9bc
+		summarizeBy: sum
+		sourceColumn: avg_review_score
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column promise_status
+		dataType: string
+		lineageTag: 9e49cf58-8fbc-4695-949a-3bbc5103b4d0
+		summarizeBy: none
+		sourceColumn: promise_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_speed
+		dataType: string
+		lineageTag: 4b1548b8-859a-4006-a525-2e7fa60ea8e8
+		summarizeBy: none
+		sourceColumn: delivery_speed
+
+		annotation SummarizationSetBy = Automatic
+
+	column promise_slack_band
+		dataType: string
+		lineageTag: 9deeb0c7-afc6-4101-b262-5f31fe31b84c
+		summarizeBy: none
+		sourceColumn: promise_slack_band
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'promised_window_days (bins)' =
+			IF(
+				ISBLANK('fact_orders'[promised_window_days]),
+				BLANK(),
+				INT('fact_orders'[promised_window_days] / 5) * 5
+			)
+		formatString: 0
+		lineageTag: a3292d1d-ff44-43ab-8185-5e49ac7c01fd
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "fact_orders"
+				          }
+				        },
+				        "Property": "promised_window_days"
+				      }
+				    }
+				  ],
+				  "binningMetadata": {
+				    "binSize": {
+				      "value": 5.0,
+				      "unit": 0
+				    }
+				  }
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"f","Entity":"fact_orders"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"f"}},"Property":"promised_window_days"}}],"BinItem":{"Expression":{"Floor":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"f"}},"Property":"promised_window_days"}},"Size":5.0}}}}
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 4fcf64d5-473e-4b9c-bd2a-35eb01472da2
+		summarizeBy: none
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Promise Slack Band Display' =
+			
+			MID(
+			    fact_orders[promise_slack_band],
+			    5,
+			    LEN(fact_orders[promise_slack_band])
+			)
+		lineageTag: 4ce56867-76f1-4a3d-9a58-446cefe24e5d
+		summarizeBy: none
+		sortByColumn: promise_slack_band
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_orders = m
+		mode: import
+		queryGroup: Facts
+		source =
+				let
+				    Source = olist_orders_dataset,
+				    #"Merged Queries" = Table.NestedJoin(Source, {"customer_id"}, olist_customers_dataset, {"customer_id"}, "olist_customers_dataset", JoinKind.LeftOuter),
+				    #"Expanded olist_customers_dataset" = Table.ExpandTableColumn(#"Merged Queries", "olist_customers_dataset", {"customer_unique_id", "customer_zip_code_prefix"}, {"olist_customers_dataset.customer_unique_id", "olist_customers_dataset.customer_zip_code_prefix"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded olist_customers_dataset", {"olist_customers_dataset.customer_unique_id"}, dim_customer, {"customer_unique_id"}, "dim_customer", JoinKind.LeftOuter),
+				    #"Expanded dim_customer" = Table.ExpandTableColumn(#"Merged Queries1", "dim_customer", {"customer_key"}, {"dim_customer.customer_key"}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Expanded dim_customer",{"olist_customers_dataset.customer_unique_id"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Columns",{{"olist_customers_dataset.customer_zip_code_prefix", type text}}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Changed Type", {"olist_customers_dataset.customer_zip_code_prefix"}, dim_location, {"zip_code"}, "customer_location", JoinKind.LeftOuter),
+				    #"Expanded customer_location" = Table.ExpandTableColumn(#"Merged Queries2", "customer_location", {"location_key"}, {"customer_location.location_key"}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Expanded customer_location",{"olist_customers_dataset.customer_zip_code_prefix", "customer_id"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns1",{{"customer_location.location_key", "customer_location_key"}, {"dim_customer.customer_key", "customer_key"}}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Renamed Columns",{"order_id", "customer_key", "customer_location_key", "order_status", "order_purchase_timestamp", "order_approved_at", "order_delivered_carrier_date", "order_delivered_customer_date", "order_estimated_delivery_date"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Reordered Columns",{{"order_delivered_carrier_date", type date}, {"order_purchase_timestamp", type date}, {"order_approved_at", type date}, {"order_delivered_customer_date", type date}, {"order_estimated_delivery_date", type date}}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Changed Type1",{{"order_purchase_timestamp", "purchase_date"}, {"order_approved_at", "approval_date"}, {"order_delivered_carrier_date", "carrier_date"}, {"order_delivered_customer_date", "delivery_date"}, {"order_estimated_delivery_date", "estimated_delivery_date"}}),
+				    #"Added Custom" = Table.AddColumn(#"Renamed Columns1", "delivery_days", each [delivery_date]-[purchase_date]),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Added Custom",{{"delivery_days", Int64.Type}}),
+				    #"Added Custom1" = Table.AddColumn(#"Changed Type2", "promised_window_days", each [estimated_delivery_date]-[purchase_date]),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Added Custom1",{{"promised_window_days", Int64.Type}}),
+				    #"Added Custom2" = Table.AddColumn(#"Changed Type3", "promise_variance_days", each [delivery_date]-[estimated_delivery_date]),
+				    #"Changed Type4" = Table.TransformColumnTypes(#"Added Custom2",{{"promise_variance_days", Int64.Type}}),
+				    #"Added Custom3" = Table.AddColumn(#"Changed Type4", "delivery_is_late", each [promise_variance_days]>0),
+				    #"Added Custom4" = Table.AddColumn(#"Added Custom3", "promise_slack_days", each [estimated_delivery_date]-[delivery_date]),
+				    #"Changed Type5" = Table.TransformColumnTypes(#"Added Custom4",{{"promise_slack_days", Int64.Type}}),
+				    #"Merged Queries3" = Table.NestedJoin(#"Changed Type5", {"order_id"}, lkp_order_reviews, {"order_id"}, "lkp_order_reviews", JoinKind.LeftOuter),
+				    #"Expanded lkp_order_reviews" = Table.ExpandTableColumn(#"Merged Queries3", "lkp_order_reviews", {"avg_review_score"}, {"lkp_order_reviews.avg_review_score"}),
+				    #"Renamed Columns2" = Table.RenameColumns(#"Expanded lkp_order_reviews",{{"lkp_order_reviews.avg_review_score", "avg_review_score"}}),
+				    #"Added Custom5" = Table.AddColumn(#"Renamed Columns2", "promise_status", each if [promise_slack_days] = null then null else if [promise_slack_days] > 0 then "Early" else if [promise_slack_days] = 0 then "On Time" else "Late"),
+				    #"Added Conditional Column" = Table.AddColumn(#"Added Custom5", "delivery_speed", each if [delivery_days] = null then null else if [delivery_days] <= 5 then "0-5 days" else if [delivery_days] <= 10 then "06-10 days" else if [delivery_days] <= 15 then "11-15 days" else if [delivery_days] <= 20 then "16-20 days" else if [delivery_days] <= 30 then "21-30 days" else if [delivery_days] <= 60 then "31-60 days" else "60+ days"),
+				    #"Added Custom6" = Table.AddColumn(#"Added Conditional Column", "promise_slack_band", each if [promise_slack_days] = null then null
+				else if [promise_slack_days] <= -10 then "01. 10+ days late"
+				else if [promise_slack_days] <= -4 then "02. 4-9 days late"
+				else if [promise_slack_days] <= -1 then "03. 1-3 days late"
+				else if [promise_slack_days] = 0 then "04. On promised date"
+				else if [promise_slack_days] <= 3 then "05. 1-3 days early"
+				else if [promise_slack_days] <= 7 then "06. 4-7 days early"
+				else if [promise_slack_days] <= 14 then "07. 8-14 days early"
+				else "08. 15+ days early"),
+				    #"Merged Queries4" = Table.NestedJoin(#"Added Custom6", {"order_id"}, lkp_single_seller, {"order_id"}, "lkp_single_seller", JoinKind.LeftOuter),
+				    #"Expanded lkp_single_seller" = Table.ExpandTableColumn(#"Merged Queries4", "lkp_single_seller", {"lkp_order_seller.seller_id"}, {"lkp_single_seller.lkp_order_seller.seller_id"}),
+				    #"Merged Queries5" = Table.NestedJoin(#"Expanded lkp_single_seller", {"lkp_single_seller.lkp_order_seller.seller_id"}, dim_seller, {"seller_id"}, "dim_seller", JoinKind.LeftOuter),
+				    #"Expanded dim_seller" = Table.ExpandTableColumn(#"Merged Queries5", "dim_seller", {"seller_key"}, {"dim_seller.seller_key"}),
+				    #"Removed Columns2" = Table.RemoveColumns(#"Expanded dim_seller",{"lkp_single_seller.lkp_order_seller.seller_id"}),
+				    #"Renamed Columns3" = Table.RenameColumns(#"Removed Columns2",{{"dim_seller.seller_key", "seller_key"}}),
+				    #"Removed Columns3" = Table.RemoveColumns(#"Renamed Columns3",{"promise_variance_days"})
+				in
+				    #"Removed Columns3"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,151 @@
+table fact_order_items
+	lineageTag: f145073d-1957-40f5-8b54-3ded4f108bd1
+
+	column order_id
+		dataType: string
+		lineageTag: 35abb61b-93f0-4078-9d1c-0a13096a0b33
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_item_id
+		dataType: string
+		lineageTag: da9ef696-d1c0-48ab-b11a-cec8f2b621a7
+		summarizeBy: none
+		sourceColumn: order_item_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: 831d4ca9-22f7-4be7-a0b1-795bd9e4f024
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_id
+		dataType: string
+		lineageTag: 2cf951e1-d1bb-4ffe-afba-41d6a3b10472
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column price
+		dataType: double
+		lineageTag: a1456080-0ec1-4f7d-98c5-f8979ded526a
+		summarizeBy: sum
+		sourceColumn: price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column freight_value
+		dataType: double
+		lineageTag: fa7fd4c5-a0c5-4c9c-9c02-e4ac72c96012
+		summarizeBy: sum
+		sourceColumn: freight_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column product_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 160e86b0-d1ba-4993-aa49-a3783611c750
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_key
+		dataType: int64
+		formatString: 0
+		lineageTag: e7c46636-60ce-4e3e-b3b5-ab69fd9dac8c
+		summarizeBy: sum
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column zip_code
+		dataType: string
+		lineageTag: e883bdcd-4992-4709-8d17-9caa0311b9d4
+		summarizeBy: none
+		sourceColumn: zip_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 32f0250f-6009-45cb-9065-4358a4d8bcd8
+		summarizeBy: sum
+		sourceColumn: customer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_location_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 14a4355f-2fdf-487f-9637-e0e871e453d6
+		summarizeBy: sum
+		sourceColumn: customer_location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column purchase_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a85e51bc-4f58-46ec-bccb-90eec470fb6a
+		summarizeBy: none
+		sourceColumn: purchase_date
+
+		variation Variation
+			isDefault
+			relationship: eba749a4-e498-4767-b586-f24b4b442236
+			defaultHierarchy: LocalDateTable_3c33d75c-8009-4075-99ef-f0b62e57961c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column seller_location_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 62cc9498-6c6f-48af-97f3-965b2d9304ac
+		summarizeBy: sum
+		sourceColumn: seller_location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_order_items = m
+		mode: import
+		queryGroup: Facts
+		source =
+				let
+				    Source = olist_order_items_dataset,
+				    #"Merged Queries" = Table.NestedJoin(Source, {"product_id"}, dim_product, {"product_id"}, "dim_product", JoinKind.LeftOuter),
+				    #"Expanded dim_product" = Table.ExpandTableColumn(#"Merged Queries", "dim_product", {"product_key"}, {"dim_product.product_key"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded dim_product", {"seller_id"}, dim_seller, {"seller_id"}, "dim_seller", JoinKind.LeftOuter),
+				    #"Expanded dim_seller" = Table.ExpandTableColumn(#"Merged Queries1", "dim_seller", {"seller_key"}, {"dim_seller.seller_key"}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Expanded dim_seller", {"seller_id"}, olist_sellers_dataset, {"seller_id"}, "olist_sellers_dataset", JoinKind.LeftOuter),
+				    #"Expanded olist_sellers_dataset" = Table.ExpandTableColumn(#"Merged Queries2", "olist_sellers_dataset", {"seller_zip_code_prefix"}, {"olist_sellers_dataset.seller_zip_code_prefix"}),
+				    #"Merged Queries3" = Table.NestedJoin(#"Expanded olist_sellers_dataset", {"order_id"}, fact_orders, {"order_id"}, "fact_orders", JoinKind.LeftOuter),
+				    #"Expanded fact_orders" = Table.ExpandTableColumn(#"Merged Queries3", "fact_orders", {"customer_key", "customer_location_key", "purchase_date"}, {"fact_orders.customer_key", "fact_orders.customer_location_key", "fact_orders.purchase_date"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Expanded fact_orders",{{"olist_sellers_dataset.seller_zip_code_prefix", type text}}),
+				    #"Merged Queries4" = Table.NestedJoin(#"Changed Type", {"olist_sellers_dataset.seller_zip_code_prefix"}, dim_location, {"zip_code"}, "customer_location", JoinKind.LeftOuter),
+				    #"Expanded customer_location" = Table.ExpandTableColumn(#"Merged Queries4", "customer_location", {"location_key"}, {"customer_location.location_key"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Expanded customer_location",{{"customer_location.location_key", "seller_location_key"}, {"fact_orders.customer_key", "customer_key"}}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Renamed Columns",{{"dim_product.product_key", "product_key"}, {"dim_seller.seller_key", "seller_key"}, {"olist_sellers_dataset.seller_zip_code_prefix", "zip_code"}, {"fact_orders.customer_location_key", "customer_location_key"}, {"fact_orders.purchase_date", "purchase_date"}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Renamed Columns1",{"shipping_limit_date"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

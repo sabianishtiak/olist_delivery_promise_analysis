@@ -1,0 +1,112 @@
+table dim_date
+	lineageTag: e7c4a8fc-b298-4ffa-b994-d9e00dbeb164
+	dataCategory: Time
+
+	column date
+		dataType: dateTime
+		isKey
+		formatString: Long Date
+		lineageTag: d137a77d-9a2e-46f7-9e42-0e3bed19307b
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 36811be4-f7a7-404a-aba2-f2fbf70296cc
+		summarizeBy: sum
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: cf1d838a-0769-4c37-b902-4cd9526d190f
+		summarizeBy: sum
+		sourceColumn: quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column month
+		dataType: int64
+		formatString: 0
+		lineageTag: 63b50928-4c1b-485d-b388-a0449eb5e00b
+		summarizeBy: sum
+		sourceColumn: month
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_name
+		dataType: string
+		lineageTag: f683e658-df39-467c-86ba-f48f9dcd6b68
+		summarizeBy: none
+		sourceColumn: month_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column day
+		dataType: int64
+		formatString: 0
+		lineageTag: 5cd2ad12-455f-4a76-9e7c-b1c040406725
+		summarizeBy: sum
+		sourceColumn: day
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_of_week
+		dataType: string
+		lineageTag: 91188b25-d797-48a8-b29f-58a4aa5179aa
+		summarizeBy: none
+		sourceColumn: day_of_week
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_name
+		dataType: string
+		lineageTag: 7a91358e-e828-44df-b518-6183038b4bac
+		summarizeBy: none
+		sourceColumn: day_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column year_month
+		dataType: string
+		lineageTag: 09cdf7ad-cfd1-48aa-810b-ff6dc54bdcd5
+		summarizeBy: none
+		sourceColumn: year_month
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_date = m
+		mode: import
+		queryGroup: dimensions
+		source =
+				let
+				    Source = List.Dates(#date(2016, 1, 1), Duration.Days(#date(2018,12,31) - #date(2016, 1, 1)) + 1, #duration(1,0,0,0)),
+				    #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				    #"Renamed Columns" = Table.RenameColumns(#"Converted to Table",{{"Column1", "date"}}),
+				    #"Inserted Year" = Table.AddColumn(#"Renamed Columns", "Year", each Date.Year([date]), Int64.Type),
+				    #"Inserted Quarter" = Table.AddColumn(#"Inserted Year", "Quarter", each Date.QuarterOfYear([date]), Int64.Type),
+				    #"Inserted Month" = Table.AddColumn(#"Inserted Quarter", "Month", each Date.Month([date]), Int64.Type),
+				    #"Inserted Month Name" = Table.AddColumn(#"Inserted Month", "Month Name", each Date.MonthName([date]), type text),
+				    #"Inserted Day" = Table.AddColumn(#"Inserted Month Name", "Day", each Date.Day([date]), Int64.Type),
+				    #"Inserted Day of Week" = Table.AddColumn(#"Inserted Day", "Day of Week", each Date.DayOfWeek([date]), Int64.Type),
+				    #"Added Custom" = Table.AddColumn(#"Inserted Day of Week", "Custom", each Date.DayOfWeek([date], Day.Monday) + 1),
+				    #"Removed Columns" = Table.RemoveColumns(#"Added Custom",{"Day of Week"}),
+				    #"Renamed Columns2" = Table.RenameColumns(#"Removed Columns",{{"Custom", "day_of_week"}}),
+				    #"Inserted Day Name" = Table.AddColumn(#"Renamed Columns2", "Day Name", each Date.DayOfWeekName([date]), type text),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Inserted Day Name",{{"Day", "day"}, {"Day Name", "day_name"}, {"Month Name", "month_name"}, {"Month", "month"}, {"Quarter", "quarter"}, {"Year", "year"}}),
+				    #"Added Custom1" = Table.AddColumn(#"Renamed Columns1", "year_month", each Date.ToText([date], "yyyy-MM")),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Added Custom1",{{"date", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

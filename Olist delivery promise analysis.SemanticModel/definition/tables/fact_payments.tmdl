@@ -1,0 +1,91 @@
+table fact_payments
+	lineageTag: eb703545-13bf-4eec-af4c-8c8be694c018
+
+	column order_id
+		dataType: string
+		lineageTag: df697999-28f8-4d9d-a7ab-def5d2d0d63c
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column payment_sequential
+		dataType: string
+		lineageTag: dc1a0288-9d48-4476-86b8-f15894eeb7ef
+		summarizeBy: none
+		sourceColumn: payment_sequential
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 0e68cac7-f606-4c5b-85f6-5385be3b7504
+		summarizeBy: none
+		sourceColumn: customer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_location_key
+		dataType: int64
+		formatString: 0
+		lineageTag: c3c6f85a-b930-44fd-a10f-a726fb56c576
+		summarizeBy: sum
+		sourceColumn: customer_location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column payment_type
+		dataType: string
+		lineageTag: ffca3e6d-63f6-49d6-954b-df8075ca1221
+		summarizeBy: none
+		sourceColumn: payment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column payment_installments
+		dataType: string
+		lineageTag: 9f341613-b5c5-4647-a994-28e3a172110b
+		summarizeBy: none
+		sourceColumn: payment_installments
+
+		annotation SummarizationSetBy = Automatic
+
+	column payment_value
+		dataType: double
+		lineageTag: 0fd4d3d9-421a-4987-8ef9-231764d7784a
+		summarizeBy: sum
+		sourceColumn: payment_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column purchase_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 922e631f-e3e7-4f2a-a80d-d1101e8fd7c3
+		summarizeBy: none
+		sourceColumn: purchase_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition fact_payments = m
+		mode: import
+		queryGroup: Facts
+		source =
+				let
+				    Source = olist_order_payments_dataset,
+				    #"Merged Queries" = Table.NestedJoin(Source, {"order_id"}, fact_orders, {"order_id"}, "fact_orders", JoinKind.LeftOuter),
+				    #"Expanded fact_orders" = Table.ExpandTableColumn(#"Merged Queries", "fact_orders", {"customer_key", "customer_location_key", "purchase_date"}, {"fact_orders.customer_key", "fact_orders.customer_location_key", "fact_orders.purchase_date"}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Expanded fact_orders",{"order_id", "payment_sequential", "fact_orders.customer_key", "fact_orders.customer_location_key", "payment_type", "payment_installments", "payment_value"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Reordered Columns",{{"fact_orders.customer_key", "customer_key"}, {"fact_orders.customer_location_key", "customer_location_key"}, {"fact_orders.purchase_date", "purchase_date"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+

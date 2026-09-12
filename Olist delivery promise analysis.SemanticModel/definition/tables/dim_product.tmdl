@@ -1,0 +1,85 @@
+table dim_product
+	lineageTag: 3f1643e9-30dd-4cdf-a8b8-c441a35c571b
+
+	column product_id
+		dataType: string
+		lineageTag: 0cb275b5-8ef7-4259-bc92-5f1fc20d7630
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 377d7e06-01e5-45a5-907e-509b1daac837
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_category
+		dataType: string
+		lineageTag: 23408376-77b0-462c-a697-8b18e75924f9
+		summarizeBy: none
+		sourceColumn: product_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_weight_g
+		dataType: int64
+		formatString: 0
+		lineageTag: 3277f55f-c068-4d26-951b-c1052a12e87a
+		summarizeBy: none
+		sourceColumn: product_weight_g
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_length_cm
+		dataType: int64
+		formatString: 0
+		lineageTag: 4cad22dd-b098-43d8-b2d8-842d7988dbe6
+		summarizeBy: none
+		sourceColumn: product_length_cm
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_height_cm
+		dataType: int64
+		formatString: 0
+		lineageTag: affdb647-2227-43f1-8638-9d4e40998601
+		summarizeBy: none
+		sourceColumn: product_height_cm
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_width_cm
+		dataType: int64
+		formatString: 0
+		lineageTag: 83839a01-e389-4f19-a05a-aba642b6379b
+		summarizeBy: none
+		sourceColumn: product_width_cm
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_product = m
+		mode: import
+		queryGroup: dimensions
+		source =
+				let
+				    Source = olist_products_dataset,
+				    #"Merged Queries" = Table.NestedJoin(Source, {"product_category_name"}, product_category_name_translation, {"product_category_name"}, "product_category_name_translation", JoinKind.LeftOuter),
+				    #"Expanded product_category_name_translation" = Table.ExpandTableColumn(#"Merged Queries", "product_category_name_translation", {"product_category_name_english"}, {"product_category_name_translation.product_category_name_english"}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Expanded product_category_name_translation",{"product_id", "product_category_name_translation.product_category_name_english", "product_category_name", "product_name_lenght", "product_description_lenght", "product_photos_qty", "product_weight_g", "product_length_cm", "product_height_cm", "product_width_cm"}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Reordered Columns",{"product_category_name", "product_name_lenght", "product_description_lenght", "product_photos_qty"}),
+				    #"Added Index" = Table.AddIndexColumn(#"Removed Columns", "Index", 1, 1, Int64.Type),
+				    #"Renamed Columns" = Table.RenameColumns(#"Added Index",{{"Index", "product_key"}}),
+				    #"Reordered Columns1" = Table.ReorderColumns(#"Renamed Columns",{"product_id", "product_key", "product_category_name_translation.product_category_name_english", "product_weight_g", "product_length_cm", "product_height_cm", "product_width_cm"}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Reordered Columns1",{{"product_category_name_translation.product_category_name_english", "product_category"}})
+				in
+				    #"Renamed Columns1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

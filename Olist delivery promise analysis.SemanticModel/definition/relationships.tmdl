@@ -1,0 +1,80 @@
+relationship b245c330-563a-e76f-8409-9fc66219ca41
+	fromColumn: fact_orders.customer_key
+	toColumn: dim_customer.customer_key
+
+relationship e82140eb-4296-c231-a981-4362a7c0f3be
+	fromColumn: fact_orders.purchase_date
+	toColumn: dim_date.date
+
+relationship 38332413-0b46-39e1-dc37-9771e38e0491
+	isActive: false
+	fromColumn: fact_orders.approval_date
+	toColumn: dim_date.date
+
+relationship e1747af5-8c66-277a-02ce-6a9c952ff551
+	isActive: false
+	fromColumn: fact_orders.carrier_date
+	toColumn: dim_date.date
+
+relationship 42e616bc-d223-9674-b9cf-4966f0939895
+	isActive: false
+	fromColumn: fact_orders.delivery_date
+	toColumn: dim_date.date
+
+relationship 253b942f-79a2-6bbc-a0cf-04592a0cb8e4
+	isActive: false
+	fromColumn: fact_orders.estimated_delivery_date
+	toColumn: dim_date.date
+
+relationship AutoDetected_8c75b8bd-9704-42c1-8ea3-cc8ba98f04df
+	fromColumn: fact_orders.seller_key
+	toColumn: dim_seller.seller_key
+
+relationship eba749a4-e498-4767-b586-f24b4b442236
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_order_items.purchase_date
+	toColumn: LocalDateTable_3c33d75c-8009-4075-99ef-f0b62e57961c.Date
+
+relationship AutoDetected_1d001abf-8e50-4884-8451-60b43d0d1512
+	fromColumn: fact_order_items.zip_code
+	toColumn: dim_location.zip_code
+
+relationship 22238729-1652-15a5-75fe-99f65859c433
+	isActive: false
+	fromColumn: fact_order_items.customer_key
+	toColumn: dim_customer.customer_key
+
+relationship c706f29f-332e-c740-d629-20bf8cd7a86f
+	fromColumn: fact_orders.customer_location_key
+	toColumn: dim_location.location_key
+
+relationship 768f71b7-b704-d1c7-8e08-df151087e7ea
+	fromColumn: fact_order_items.product_key
+	toColumn: dim_product.product_key
+
+relationship 13d8f3ca-70d3-7242-8470-951175f0d409
+	fromColumn: fact_payments.customer_key
+	toColumn: dim_customer.customer_key
+
+relationship 1fe904cc-7c06-10d8-6559-167a3bf442bd
+	fromColumn: fact_reviews.customer_key
+	toColumn: dim_customer.customer_key
+
+relationship 023d479c-bcb7-9e25-b876-0a866fefa5f1
+	fromColumn: fact_payments.purchase_date
+	toColumn: dim_date.date
+
+relationship ca0deb41-6d9c-e96d-1b42-d0516ec577d7
+	fromColumn: fact_reviews.purchase_date
+	toColumn: dim_date.date
+
+relationship ab1025c2-41dd-f8bd-fcc7-be7fb4bc8a45
+	isActive: false
+	fromColumn: fact_reviews.review_answer_date
+	toColumn: dim_date.date
+
+relationship 3c809169-23bf-1a1a-7514-7a73aba0175f
+	isActive: false
+	fromColumn: fact_reviews.review_creation_date
+	toColumn: dim_date.date
+

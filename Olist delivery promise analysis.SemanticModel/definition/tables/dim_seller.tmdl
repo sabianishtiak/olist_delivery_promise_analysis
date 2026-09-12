@@ -1,0 +1,65 @@
+table dim_seller
+	lineageTag: 0917dc7b-5d89-4a94-85fe-5cd5750173ef
+
+	column seller_id
+		dataType: string
+		lineageTag: 7c5405d0-d5e1-4875-b531-bea00ab1f57f
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 262b73e2-5f2e-4b74-897e-222286b0b527
+		summarizeBy: none
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_zip_code
+		dataType: string
+		lineageTag: 67df15ca-cb8a-46f5-b970-9bb1f87e95c8
+		summarizeBy: none
+		sourceColumn: seller_zip_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_city
+		dataType: string
+		lineageTag: b93a6a15-8ac6-46e2-946d-178e7773682f
+		summarizeBy: none
+		sourceColumn: seller_city
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_state
+		dataType: string
+		lineageTag: aa6ff2ac-71a9-45bf-90c1-410b0253e85b
+		summarizeBy: none
+		sourceColumn: seller_state
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_seller = m
+		mode: import
+		queryGroup: dimensions
+		source =
+				let
+				    Source = olist_sellers_dataset,
+				    #"Added Index" = Table.AddIndexColumn(Source, "Index", 1, 1, Int64.Type),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Added Index",{"seller_id", "Index", "seller_zip_code_prefix", "seller_city", "seller_state"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Reordered Columns",{{"Index", "seller_key"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"seller_zip_code_prefix", type text}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"seller_zip_code_prefix"}, lkp_geo, {"geolocation_zip_code_prefix"}, "lkp_zip_code", JoinKind.LeftOuter),
+				    #"Expanded lkp_zip_code" = Table.ExpandTableColumn(#"Merged Queries", "lkp_zip_code", {"latitude", "longitude"}, {"lkp_zip_code.latitude", "lkp_zip_code.longitude"}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Expanded lkp_zip_code",{{"lkp_zip_code.latitude", "seller_latitude"}, {"lkp_zip_code.longitude", "seller_longitude"}, {"seller_zip_code_prefix", "seller_zip_code"}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Renamed Columns1",{"seller_latitude", "seller_longitude"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

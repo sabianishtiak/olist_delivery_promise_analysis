@@ -1,0 +1,242 @@
+expression olist_products_dataset =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\olist_products_dataset.csv"),[Delimiter=",", Columns=9, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"product_id", type text}, {"product_category_name", type text}, {"product_name_lenght", Int64.Type}, {"product_description_lenght", Int64.Type}, {"product_photos_qty", Int64.Type}, {"product_weight_g", Int64.Type}, {"product_length_cm", Int64.Type}, {"product_height_cm", Int64.Type}, {"product_width_cm", Int64.Type}})
+		in
+		    #"Changed Type"
+	lineageTag: e63f7cb7-0111-410d-b749-8ff8a4a3fd54
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression olist_sellers_dataset =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\olist_sellers_dataset.csv"),[Delimiter=",", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"seller_id", type text}, {"seller_zip_code_prefix", Int64.Type}, {"seller_city", type text}, {"seller_state", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: 95aa7b5f-6b40-4160-b67a-2d8505d82f6e
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression product_category_name_translation =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\product_category_name_translation.csv"),[Delimiter=",", Columns=2, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}}),
+		    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+		    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"product_category_name", type text}, {"product_category_name_english", type text}})
+		in
+		    #"Changed Type1"
+	lineageTag: 1a3cad18-ea96-4cf5-a74a-a98719040bef
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression lkp_geo =
+		let
+		    Source = olist_geolocation_dataset,
+		    #"Removed Columns" = Table.RemoveColumns(Source,{"geolocation_city", "geolocation_state"}),
+		    #"Changed Type with Locale" = Table.TransformColumnTypes(#"Removed Columns", {{"geolocation_lat", type number}}, "en-US"),
+		    #"Changed Type with Locale1" = Table.TransformColumnTypes(#"Changed Type with Locale", {{"geolocation_lng", type number}}, "en-US"),
+		    #"Grouped Rows" = Table.Group(#"Changed Type with Locale1", {"geolocation_zip_code_prefix"}, {{"latitude", each List.Average([geolocation_lat]), type nullable number}, {"longitude", each List.Average([geolocation_lng]), type nullable number}, {"count", each Table.RowCount(_), Int64.Type}}),
+		    #"Removed Columns1" = Table.RemoveColumns(#"Grouped Rows",{"count"})
+		in
+		    #"Removed Columns1"
+	lineageTag: 102f4dfd-d43a-424b-afb8-6b6547c7d9d7
+	queryGroup: Loookups
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression olist_geolocation_dataset =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\olist_geolocation_dataset.csv"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		in
+		    #"Promoted Headers"
+	lineageTag: 6c41bcf4-31b3-47a7-aed4-db80dedbe03a
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'olist_geolocation_dataset (2)' =
+		let
+		    Source = olist_geolocation_dataset,
+		    #"Removed Columns" = Table.RemoveColumns(Source,{"geolocation_lat", "geolocation_lng"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Columns"),
+		    #"Grouped Rows" = Table.Group(#"Removed Duplicates", {"geolocation_zip_code_prefix", "geolocation_city"}, {{"StateCount", each Table.RowCount(_), Int64.Type}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Grouped Rows", each ([StateCount] = 2))
+		in
+		    #"Filtered Rows"
+	lineageTag: dde36074-6b1f-4068-8507-444385af7d3d
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression lkp_zip_canonical =
+		let
+		    Source = olist_geolocation_dataset,
+		    #"Removed Columns" = Table.RemoveColumns(Source,{"geolocation_lat", "geolocation_lng"}),
+		    #"Grouped Rows" = Table.Group(#"Removed Columns", {"geolocation_zip_code_prefix", "geolocation_city", "geolocation_state"}, {{"Count", each Table.RowCount(_), Int64.Type}}),
+		    #"Sorted Rows" = Table.Sort(#"Grouped Rows",{{"geolocation_zip_code_prefix", Order.Ascending}, {"Count", Order.Descending}}),
+		    #"Removed Duplicates" = Table.Distinct(#"Sorted Rows", {"geolocation_zip_code_prefix"}),
+		    #"Removed Columns1" = Table.RemoveColumns(#"Removed Duplicates",{"Count"})
+		in
+		    #"Removed Columns1"
+	lineageTag: fbcc485e-7e81-42fc-a9f2-202746f94ff9
+	queryGroup: Loookups
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression lkp_cus_location =
+		let
+		    Source = olist_customers_dataset,
+		    #"Removed Columns" = Table.RemoveColumns(Source,{"customer_id", "customer_unique_id"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"customer_zip_code_prefix", "zip_code_prefix"}, {"customer_city", "city"}, {"customer_state", "state"}})
+		in
+		    #"Renamed Columns"
+	lineageTag: fee4e602-ea57-4377-8dec-7200931b6db9
+	queryGroup: Loookups
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression olist_orders_dataset =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\olist_orders_dataset.csv"),[Delimiter=",", Columns=8, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"order_id", type text}, {"customer_id", type text}, {"order_status", type text}, {"order_purchase_timestamp", type datetime}, {"order_approved_at", type datetime}, {"order_delivered_carrier_date", type datetime}, {"order_delivered_customer_date", type datetime}, {"order_estimated_delivery_date", type datetime}})
+		in
+		    #"Changed Type"
+	lineageTag: 5992c32b-7567-4fd3-bd77-9b46397bb8a9
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression olist_order_items_dataset =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\olist_order_items_dataset.csv"),[Delimiter=",", Columns=7, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type with Locale" = Table.TransformColumnTypes(#"Promoted Headers", {{"price", type number}}, "en-US"),
+		    #"Changed Type with Locale1" = Table.TransformColumnTypes(#"Changed Type with Locale", {{"freight_value", type number}}, "en-US")
+		in
+		    #"Changed Type with Locale1"
+	lineageTag: 2671a5d5-0c38-4d03-8a2d-00e68b93a8c8
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression olist_order_payments_dataset =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\olist_order_payments_dataset.csv"),[Delimiter=",", Columns=5, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type with Locale" = Table.TransformColumnTypes(#"Promoted Headers", {{"payment_value", type number}}, "en-US")
+		in
+		    #"Changed Type with Locale"
+	lineageTag: 6821b0a3-c0e6-4e1a-87d6-64e738cb8f44
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression lkp_seller_location =
+		let
+		    Source = olist_sellers_dataset,
+		    #"Removed Columns" = Table.RemoveColumns(Source,{"seller_id"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"seller_zip_code_prefix", "zip"}, {"seller_city", "city"}, {"seller_state", "state"}}),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"zip", type text}}),
+		    #"Renamed Columns1" = Table.RenameColumns(#"Changed Type",{{"zip", "zip_code"}})
+		in
+		    #"Renamed Columns1"
+	lineageTag: 2109ffd1-30af-4a62-95ad-fef305123de8
+	queryGroup: Loookups
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression olist_order_reviews_dataset =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\olist_order_reviews_dataset.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"review_id", type text}, {"order_id", type text}, {"review_score", Int64.Type}, {"review_comment_title", type text}, {"review_comment_message", type text}, {"review_creation_date", type datetime}, {"review_answer_timestamp", type datetime}})
+		in
+		    #"Changed Type"
+	lineageTag: 66234b0e-decd-427e-b7ed-9e6edabea550
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression olist_customers_dataset =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\User\Desktop\archive\olist_customers_dataset.csv"),[Delimiter=",", Columns=5, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"customer_id", type text}, {"customer_unique_id", type text}, {"customer_zip_code_prefix", Int64.Type}, {"customer_city", type text}, {"customer_state", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: 2042e3c5-e19a-4ea0-8822-c38526ab88c8
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression lkp_order_seller =
+		let
+		    Source = olist_order_items_dataset,
+		    #"Reordered Columns" = Table.ReorderColumns(Source,{"order_id", "seller_id", "shipping_limit_date", "price", "freight_value", "order_item_id", "product_id"}),
+		    #"Removed Columns" = Table.RemoveColumns(#"Reordered Columns",{"shipping_limit_date", "price", "freight_value", "order_item_id", "product_id"}),
+		    #"Removed Duplicates" = Table.Distinct(#"Removed Columns")
+		in
+		    #"Removed Duplicates"
+	lineageTag: aa905ea6-581f-48bd-ab0b-2a44bf3a449e
+	queryGroup: Loookups
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression lkp_single_seller =
+		let
+		    Source = lkp_order_seller,
+		    #"Grouped Rows" = Table.Group(Source, {"order_id"}, {{"seller_count", each Table.RowCount(_), Int64.Type}}),
+		    #"Filtered Rows" = Table.SelectRows(#"Grouped Rows", each ([seller_count] = 1)),
+		    #"Merged Queries" = Table.NestedJoin(#"Filtered Rows", {"order_id"}, lkp_order_seller, {"order_id"}, "lkp_order_seller", JoinKind.LeftOuter),
+		    #"Expanded lkp_order_seller" = Table.ExpandTableColumn(#"Merged Queries", "lkp_order_seller", {"seller_id"}, {"lkp_order_seller.seller_id"})
+		in
+		    #"Expanded lkp_order_seller"
+	lineageTag: 20e2b5f3-e569-4507-a20e-69d9cc81677d
+	queryGroup: Loookups
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression lkp_order_reviews =
+		let
+		    Source = olist_order_reviews_dataset,
+		    #"Removed Columns" = Table.RemoveColumns(Source,{"review_comment_title", "review_comment_message", "review_answer_timestamp"}),
+		    #"Grouped Rows" = Table.Group(#"Removed Columns", {"order_id"}, {{"review_count", each Table.RowCount(_), Int64.Type}, {"avg_review_score", each List.Average([review_score]), type nullable number}, {"latest_review_date", each List.Max([review_creation_date]), type nullable datetime}})
+		in
+		    #"Grouped Rows"
+	lineageTag: 4b53ae19-8d2b-4ea1-b12e-0d4cd8c09fc0
+	queryGroup: Loookups
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
