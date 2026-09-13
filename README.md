@@ -13,7 +13,7 @@ The two questions are connected since the first one establishes what is actually
 2. The penalty for missing delivery promise grows with delivery time. For example, for orders delivered in 6-10 days, missing the expected delivery timeline resulted in a customer review score that is 0.86 points lower than early ones. Among orders delivered in 31-60 days, this gap widens to 1.80 points.
 3. Therefore, delivery expectation management appears to be more important for customer satisfaction than actual delivery time.
 
-![Page 1 - Delivery Promise Reliability](page1_delivery_promise_reliability.png)
+![Page 1 - Delivery Promise Reliability](page1_delivery_promise_reliabilty.png)
 
 **Whether delivery promises are calibrated**
 1. A closer look at delivery promise and actual delivery shows that promise window increases for slower regions, but does not consistently account for delivery variability.
