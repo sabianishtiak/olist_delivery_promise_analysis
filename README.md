@@ -1,7 +1,7 @@
 # olist_delivery_promise_analysis
 A Power BI analysis of delivery promise reliability and calibration across Brazilian states, using 96k order data.
 
-You can read the case study PDF here: **[Read the Case Study](case_study_olist_delivery_promise_analysis)**
+You can read the case study PDF here: **[Read the Case Study](case_study_olist_delivery_promise_analysis.pdf)**
 
 # About Olist
 Olist is a Brazilian e-commerce marketplace connecting thousands of sellers to customers across the country. Since Olist operates in a large country with many different states and locations, delivery promises here matter a great amount for customer satisfaction. Whether delivery promises actually reflect these regional differences is not obvious from the data. How promises are set is an operational decision that affects both customer satisfaction and the credibility of the marketplace.
